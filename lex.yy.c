@@ -492,6 +492,7 @@ char *yytext;
 #line 2 "scanner.l"
 #include <stdio.h>
 #include <string.h>
+#include "parser.tab.h"  // Incluir el archivo de cabecera generado por Bison
 
 // Definición de los tokens
 typedef enum {
@@ -506,7 +507,7 @@ typedef enum {
 
 /* Prototipo de función para imprimir tokens */
 void print_token(TokenType type, const char* lexeme);
-#line 509 "lex.yy.c"
+#line 510 "lex.yy.c"
 /* Definición de patrones léxicos */
 /* Palabras reservadas */
 /* Operadores */
@@ -514,7 +515,7 @@ void print_token(TokenType type, const char* lexeme);
 /* Identificadores */
 /* Constantes numéricas (enteros y decimales) */
 /* Literal de cadena */
-#line 517 "lex.yy.c"
+#line 518 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -733,7 +734,6 @@ YY_DECL
 	{
 #line 43 "scanner.l"
 
-
 #line 737 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
@@ -793,52 +793,52 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 45 "scanner.l"
+#line 44 "scanner.l"
 { print_token(PALABRA_RESERVADA, yytext); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 46 "scanner.l"
+#line 45 "scanner.l"
 { print_token(OPERADOR, yytext); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 47 "scanner.l"
+#line 46 "scanner.l"
 { print_token(CARACTER_PUNTUACION, yytext); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 48 "scanner.l"
+#line 47 "scanner.l"
 { print_token(IDENTIFICADOR, yytext); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 49 "scanner.l"
+#line 48 "scanner.l"
 { print_token(CONSTANTE, yytext); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 50 "scanner.l"
+#line 49 "scanner.l"
 { print_token(LITERAL_CADENA, yytext); }
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 52 "scanner.l"
+#line 51 "scanner.l"
 ;
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 54 "scanner.l"
+#line 53 "scanner.l"
 printf("Fin de la entrada\n"); return 0;
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 56 "scanner.l"
+#line 55 "scanner.l"
 { print_token(ERROR, yytext); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 58 "scanner.l"
+#line 57 "scanner.l"
 ECHO;
 	YY_BREAK
 #line 844 "lex.yy.c"
@@ -1844,8 +1844,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 58 "scanner.l"
-
+#line 57 "scanner.l"
 
 void print_token(TokenType type, const char* lexeme) {
     switch(type) {
@@ -1872,28 +1871,4 @@ void print_token(TokenType type, const char* lexeme) {
             break;
     }
 }
-
-int main(int argc, char **argv) {
-    FILE *file = NULL;
-
-    if (argc > 1) {
-        file = fopen(argv[1], "r");
-        if (!file) {
-            perror(argv[1]);
-            return 1;
-        }
-        yyin = file;  // Establece el archivo de entrada para Flex
-    }
-
-    yylex();  // Inicia el análisis léxico
-
-    // Si el archivo fue abierto, se cierra aquí
-    if (file) {
-        fclose(file);
-    }
-
-    printf("El programa ha terminado.\n");
-    return 0;
-}
-
 

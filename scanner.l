@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include "parser.tab.h"  // Incluir el archivo de cabecera generado por Bison
 
 // Definición de los tokens
 typedef enum {
@@ -39,9 +40,7 @@ NUMBER [0-9]+(\.[0-9]+)?
 /* Literal de cadena */
 STRING \"([^\"\n]|(\\.))*\"
 
-
 %%
-
 {RESERVADAS}    { print_token(PALABRA_RESERVADA, yytext); }
 {OPERADORES}    { print_token(OPERADOR, yytext); }
 {PUNCTUACION}   { print_token(CARACTER_PUNTUACION, yytext); }
@@ -56,7 +55,6 @@ STRING \"([^\"\n]|(\\.))*\"
 .               { print_token(ERROR, yytext); }
 
 %%
-
 void print_token(TokenType type, const char* lexeme) {
     switch(type) {
         case PALABRA_RESERVADA:
@@ -82,27 +80,3 @@ void print_token(TokenType type, const char* lexeme) {
             break;
     }
 }
-
-int main(int argc, char **argv) {
-    FILE *file = NULL;
-
-    if (argc > 1) {
-        file = fopen(argv[1], "r");
-        if (!file) {
-            perror(argv[1]);
-            return 1;
-        }
-        yyin = file;  // Establece el archivo de entrada para Flex
-    }
-
-    yylex();  // Inicia el análisis léxico
-
-    // Si el archivo fue abierto, se cierra aquí
-    if (file) {
-        fclose(file);
-    }
-
-    printf("El programa ha terminado.\n");
-    return 0;
-}
-

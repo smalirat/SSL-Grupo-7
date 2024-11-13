@@ -1,34 +1,22 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+int yylex();
+void yyerror (char const *s) {}
+
 %}
 
-/* Definición de tokens */
-%token IDENTIFICADOR
-%token CONSTANTE
-%token LITERAL_CADENA
-%token VAR
-%token SI
-%token SINO
-%token IMPRIMIR
-%token RAICES
-%token EVALUAR
-%token DOBLE
-%token TRIPLE
-%token FUNCION
-%token MOSTRAR
-%token CASO
-
+%token IDENTIFICADOR CONSTANTE LITERAL_CADENA VAR SI SINO IMPRIMIR RAICES EVALUAR DOBLE TRIPLE FUNCION MOSTRAR CASO
 %token OP_SUMA OP_RESTA OP_MULT OP_DIV OP_POTENCIA OP_MENOR OP_MAYOR OP_IGUAL OP_DISTINTO
-
-%token PUNTO_COMA COMA ASIGNACION
-%token PAR_ABRE PAR_CIERRA LLAVE_ABRE LLAVE_CIERRA
+%token PUNTO_COMA COMA ASIGNACION PAR_ABRE PAR_CIERRA LLAVE_ABRE LLAVE_CIERRA
 
 %start Programa
 
-%%
+%left OP_SUMA OP_RESTA
+%left OP_MULT OP_DIV
+%right OP_POTENCIA
 
-/* Reglas de la gramática */
+%%
 Programa:
     ListaFunciones
 ;
@@ -73,6 +61,8 @@ Asignacion:
 ListaExpresiones:
     Expresion PUNTO_COMA
     | ListaExpresiones Expresion PUNTO_COMA
+    | Mostrar
+    | Caso
 ;
 
 Expresion:
@@ -99,8 +89,6 @@ LiteralCadena:
 ;
 
 %%
-
-/* Código en C para funciones de manejo de errores y main */
 void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
 }
