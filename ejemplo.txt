@@ -1,0 +1,5 @@
+funcion calcularRaiz(double x) {
+    if (x < 0) {
+        mostrar("Error");
+    }
+}
