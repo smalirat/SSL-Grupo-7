@@ -1,68 +1,77 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-void yyerror(const char *s);
+#include <math.h>
+#define YYSTYPE double
 int yylex(void);
+void yyerror(char*);
+
+
 %}
 
-%union {
-    char* str;
-    double dblval;
-}
-
-%token <str> PALABRA_RESERVADA
-%token <str> IDENTIFICADOR
-%token <dblval> CONSTANTE
-%token <str> LITERAL_CADENA
-%token OP_SUMA OP_RESTA OP_MULT OP_DIV OP_POTENCIA
-%token OP_MENOR OP_MAYOR OP_IGUAL OP_DISTINTO
-%token PUNTO_COMA COMA ASIGNACION
-%token PAR_ABRE PAR_CIERRA LLAVE_ABRE LLAVE_CIERRA
-
-%type <dblval> expresion
-
-// Declaración de precedencias
+%token NUMBER_FLOAT NUMBER_INT
+%right OP_IGUAL
+%token EOL
+%token PAR_ABRE PAR_CIERRA SYM_COMMA
+%token FUNC_L FUNC_R
+%token RAIZ DOBLE TRIPLE
+%token CMD_EXT
+%token IDENTIFICADOR
 %left OP_SUMA OP_RESTA
 %left OP_MULT OP_DIV
-%right OP_POTENCIA
+%left OP_POTENCIA
+
 
 %%
 
-// Definición de la gramática
+strt: strt stmt EOL { printf("= %lf\n", $2); }
+	| strt EOL { printf("\n"); }
+	| strt CMD_EXT { printf(">> Bye!\n"); exit(0); }
+	|
+;
 
-program:
-    | program statement
-    ;
 
-statement:
-    PALABRA_RESERVADA IDENTIFICADOR PAR_ABRE PAR_CIERRA PUNTO_COMA
-    | IDENTIFICADOR ASIGNACION expresion PUNTO_COMA
-    | IDENTIFICADOR PUNTO_COMA
-    ;
+stmt: IDENTIFICADOR OP_IGUAL expr           { $$ = $3; $1 = $3; }
+    | expr                         { $$ = $1; }
+;
 
-expresion:
-    CONSTANTE { $$ = $1; } // Asignar el valor de la constante
-    | IDENTIFICADOR { $$ = 1.0; } // Asignar un valor fijo a IDENTIFICADOR
-    | expresion OP_SUMA expresion { $$ = $1 + $3; }
-    | expresion OP_RESTA expresion { $$ = $1 - $3; }
-    | expresion OP_MULT expresion { $$ = $1 * $3; }
-    | expresion OP_DIV expresion {
-        if ($3 != 0)
-            $$ = $1 / $3;
-        else
-            yyerror("Error: División por cero");
-    }
-    | PAR_ABRE expresion PAR_CIERRA { $$ = $2; } // Evaluar la expresión entre paréntesis
-    ;
+
+expr: expr OP_SUMA term          { $$ = $1 + $3; }
+    | expr OP_RESTA term         { $$ = $1 - $3; }
+    | term  { $$ = $1; }
+;
+
+term: term OP_MULT unary     { $$ = $1 * $3; }
+    | term OP_DIV unary       { $$ = $1 / $3; }
+    | unary                     { $$ = $1; }
+;
+
+unary: OP_RESTA unary            { $$ = $2 * -1; }
+    | pow                       { $$ = $1; }
+;
+
+pow: factor OP_POTENCIA pow           { $$ = pow($1,$3); }
+    | factor                    { $$ = $1; }
+;
+
+factor: IDENTIFICADOR                                      { $$ = $1; }
+    | NUMBER_INT                                         { $$ = $1; }
+    | NUMBER_FLOAT                                       { $$ = $1; }
+    | PAR_ABRE expr PAR_CIERRA                        { $$ = ($2); }
+    | RAIZ PAR_ABRE expr PAR_CIERRA                   { $$ = sqrt($3); }
+    | DOBLE PAR_ABRE expr PAR_CIERRA                  { $$ = $3 + $3 ; }
+    | TRIPLE PAR_ABRE expr PAR_CIERRA                 { $$ = 3* $3  ; }
+
+;
+
 
 %%
-
-// Manejo de errores
-void yyerror(const char *s) {
-    fprintf(stderr, "Error: %s\n", s);
+void yyerror(char *s)
+{
+	fprintf(stderr, ">> %s\n", s);
 }
-
-int main(void) {
-    return yyparse();
+int main()
+{
+	yyparse();
+	return 0;
 }
