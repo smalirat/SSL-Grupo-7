@@ -1,21 +1,9 @@
 %{
 #include <stdio.h>
 #include <string.h>
-#include "parser.tab.h"  // Incluir el archivo de cabecera generado por Bison
+#include "parser.tab.h"  // Incluye el archivo generado por Bison para usar sus tokens y yylval
 
-// Definición de los tokens
-typedef enum {
-    PALABRA_RESERVADA,
-    OPERADOR,
-    IDENTIFICADOR,
-    CARACTER_PUNTUACION,
-    CONSTANTE,
-    LITERAL_CADENA,
-    ERROR
-} TokenType;
 
-/* Prototipo de función para imprimir tokens */
-void print_token(TokenType type, const char* lexeme);
 %}
 
 %option noyywrap
@@ -23,16 +11,31 @@ void print_token(TokenType type, const char* lexeme);
 /* Definición de patrones léxicos */
 
 /* Palabras reservadas */
-RESERVADAS (funcion|raices|evaluar|mostrar|caso|doble|triple)
+
+PALABRA_RESERVADA (funcion|raices|evaluar|mostrar|caso|doble|triple)
 
 /* Operadores */
-OPERADORES (\+|\-|\*|\/|\^|<|>|==|!=)
+OP_SUMA \+
+OP_RESTA \-
+OP_MULT \*
+OP_DIV \/
+OP_POTENCIA \^
+OP_MENOR <
+OP_MAYOR >
+OP_IGUAL ==
+OP_DISTINTO !=
 
 /* Caracteres de puntuación */
-PUNCTUACION [\(\)\{\},;=]
+PUNTO_COMA ;
+COMA ,
+ASIGNACION =
+PAR_ABRE \(
+PAR_CIERRA \)
+LLAVE_ABRE \{
+LLAVE_CIERRA \}
 
-/* Identificadores */
-IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
+/* Identificadores*/
+IDENTIFICADOR [a-zA-Z_][a-zA-Z0-9_]*
 
 /* Constantes numéricas (enteros y decimales) */
 NUMBER [0-9]+(\.[0-9]+)?
@@ -41,42 +44,31 @@ NUMBER [0-9]+(\.[0-9]+)?
 STRING \"([^\"\n]|(\\.))*\"
 
 %%
-{RESERVADAS}    { print_token(PALABRA_RESERVADA, yytext); }
-{OPERADORES}    { print_token(OPERADOR, yytext); }
-{PUNCTUACION}   { print_token(CARACTER_PUNTUACION, yytext); }
-{IDENTIFIER}    { print_token(IDENTIFICADOR, yytext); }
-{NUMBER}        { print_token(CONSTANTE, yytext); }
-{STRING}        { print_token(LITERAL_CADENA, yytext); }
 
-[ \t\n\r]+      ;
+{PALABRA_RESERVADA}    { return PALABRA_RESERVADA; }
+{OP_SUMA}       { return OP_SUMA; }
+{OP_RESTA}      { return OP_RESTA; }
+{OP_MULT}       { return OP_MULT; }
+{OP_DIV}        { return OP_DIV; }
+{OP_POTENCIA}   { return OP_POTENCIA; }
+{OP_MENOR}      { return OP_MENOR; }
+{OP_MAYOR}      { return OP_MAYOR; }
+{OP_IGUAL}      { return OP_IGUAL; }
+{OP_DISTINTO}   { return OP_DISTINTO; }
 
-<<EOF>> printf("Fin de la entrada\n"); return 0;
+{PUNTO_COMA}    { return PUNTO_COMA; }
+{COMA}          { return COMA; }
+{ASIGNACION}    { return ASIGNACION; }
+{PAR_ABRE}      { return PAR_ABRE; }
+{PAR_CIERRA}    { return PAR_CIERRA; }
+{LLAVE_ABRE}    { return LLAVE_ABRE; }
+{LLAVE_CIERRA}  { return LLAVE_CIERRA; }
 
-.               { print_token(ERROR, yytext); }
+{IDENTIFICADOR} { yylval.str = strdup(yytext); return IDENTIFICADOR; }
+{NUMBER}        { yylval.dblval = atof(yytext); return CONSTANTE; }
+{STRING}        { yylval.str = strdup(yytext); return LITERAL_CADENA; }
+
+[ \t\n\r]+   ;  // Ignorar espacios en blanco y saltos de línea
+
 
 %%
-void print_token(TokenType type, const char* lexeme) {
-    switch(type) {
-        case PALABRA_RESERVADA:
-            printf("PALABRA_RESERVADA: %s\n", lexeme);
-            break;
-        case OPERADOR:
-            printf("OPERADOR: %s\n", lexeme);
-            break;
-        case IDENTIFICADOR:
-            printf("IDENTIFICADOR: %s\n", lexeme);
-            break;
-        case CARACTER_PUNTUACION:
-            printf("CARACTER_PUNTUACION: %s\n", lexeme);
-            break;
-        case CONSTANTE:
-            printf("CONSTANTE: %s\n", lexeme);
-            break;
-        case LITERAL_CADENA:
-            printf("LITERAL_CADENA: %s\n", lexeme);
-            break;
-        case ERROR:
-            printf("ERROR: %s\n", lexeme);
-            break;
-    }
-}
