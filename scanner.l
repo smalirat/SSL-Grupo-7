@@ -1,7 +1,7 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
-#include "y.tab.h"
+#include "parser.tab.h"
 extern YYSTYPE yylval;
 void yyerror(char*);
 %}
@@ -81,21 +81,22 @@ IDENTIFICADOR [a-zA-Z]([a-zA-Z]|[0-9])*
 	return NUMBER_FLOAT;
 }
 
+"quit"|"exit" {return CMD_EXT;}
+
 {IDENTIFICADOR} {
 printf("IDENTIFICADOR  ");
 
 return IDENTIFICADOR;
 }
 \n {
+	printf("\n <<EOL>> \n");
 	return EOL;
 }
+
 [ \t]+ {}
-"quit"|"exit" {
-	return CMD_EXT;
-}
-. {
-	yyerror("ERROR: Unrecognized input!");
-}
+
+
+. {yyerror("ERROR: Unrecognized input!");}
 
 %%
 
